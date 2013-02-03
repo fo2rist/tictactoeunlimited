@@ -8,13 +8,16 @@
 #include "GameLogic.hpp"
 
 #include <bb/cascades/ActivityIndicator>
+#include <bb/cascades/Button>
 #include <bb/cascades/Container>
+#include <bb/cascades/ImagePaint>
+#include <bb/cascades/DockLayout>
 #include <bb/cascades/Label>
 #include <bb/cascades/Dialog>
 #include <bb/cascades/ImageToggleButton>
 #include <bb/cascades/StackLayout>
 #include <bb/cascades/StackLayoutProperties>
-#include <bb/system/SystemDialog>
+
 #include <QtDeclarative/qdeclarativecomponent.h>
 #include <QPoint>
 
@@ -87,6 +90,10 @@ void GameLogic::initializeGame(Container *gameFieldContainer) {
 }
 
 void GameLogic::onButtonClicked(bool checked) {
+	if (checked == false) { //Ignore game rest
+		return;
+	}
+
 	ImageToggleButton* clickedButton = qobject_cast<ImageToggleButton*>(QObject::sender());
 	QPoint position = clickedButton->property(POSITION_PROPERTY).toPoint();
 
@@ -116,16 +123,45 @@ void GameLogic::onButtonClicked(bool checked) {
 	}
 }
 
+void GameLogic::resetGame() {
+	cleanGameField();
+	initGameField();
+	QList<ImageToggleButton*> buttons = currentGameFieldContainer_->findChildren<ImageToggleButton*>(BUTTONS_NAME);
+	foreach(ImageToggleButton *button, buttons) {
+		button->setEnabled(true);
+		button->setChecked(false);
+	}
+
+}
+
 bool GameLogic::checkForWin(QPoint position){
 	if (getLineLength(position, directionE) + getLineLength(position, directionW) > WIN_LINE
 			|| getLineLength(position, directionN) + getLineLength(position, directionS) > WIN_LINE
 			|| getLineLength(position, directionNE) + getLineLength(position, directionSW) > WIN_LINE
 			|| getLineLength(position, directionNW) + getLineLength(position, directionSE) > WIN_LINE) {
 
+		CellState cellState = gameField_[position.x()][position.y()];
+		QString text = (cellState == CellStateX) ?
+				"You win!" :
+				"Computer win...";
+
+		Button *okButton = Button::create("Ok");
 		Dialog* winDialog = Dialog::create()
 				.content(Container::create()
-				.add(ActivityIndicator::create())
-				.add(Label::create("Win")));
+						.background(ImagePaint(QUrl("asset:///images/dialog_bg.png"), RepeatPattern::Fill))
+						.layout(DockLayout::create())
+						.horizontal(HorizontalAlignment::Center)
+						.vertical(VerticalAlignment::Center)
+						.add(Container::create()
+								.layout(StackLayout::create()
+										.orientation(LayoutOrientation::TopToBottom))
+								.add(Label::create(text).horizontal(HorizontalAlignment::Center))
+								.add(okButton))
+				);
+		QObject::connect(okButton, SIGNAL(clicked()),
+						winDialog, SLOT(close()));
+		QObject::connect(okButton, SIGNAL(clicked()),
+						this, SLOT(resetGame()));
 		winDialog->open();
 		return true;
 	}

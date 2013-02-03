@@ -45,6 +45,7 @@ public:
 
 public slots:
 	void onButtonClicked(bool checked);
+	void resetGame();
 
 private:
 	///Set check-mark in given position.
