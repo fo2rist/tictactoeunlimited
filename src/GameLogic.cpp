@@ -180,7 +180,7 @@ QPoint GameLogic::bestTurnFor(TurnType turnType) {
 			int playersWeight = calculateWeightFor(position, desiredState);
 			int enemysWeight = calculateWeightFor(position, enemysState);
 
-			int total = playersWeight*2 + enemysWeight;
+			int total = playersWeight*4 + enemysWeight*3;
 			if (total > bestWeight) {
 				bestWeight = total;
 				bestPoint = position;
@@ -267,7 +267,7 @@ int GameLogic::calculateWeightFor(QPoint position, CellState desiredState) {
 	}
 
 	//If win possible
-	const int turnsLeftWeight = 1000;
+	const int turnsLeftWeight = 10000;
 	const int linesLengthWeight = 100;
 	return (WIN_LINE - turnsLeftToWin) * turnsLeftWeight
 			+ cumulativeLinesLength * linesLengthWeight;
