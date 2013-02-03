@@ -1,0 +1,6 @@
+/arm
+/x86
+/assets/*qml~
+/translations/*.qm
+/translations/Makefile
+/.settings
