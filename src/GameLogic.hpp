@@ -17,19 +17,23 @@ namespace bb {
 }
 class QPoint;
 
-///Possible states for game fields.
-enum FieldState {
-	FiledStateEmpty = 0,
-	FiledStateX = 1,
-	FiledStateO = 2
+///Possible states for game cells.
+enum CellState {
+	CellStateEmpty = 0,
+	CellStateX = 1,
+	CellStateO = 2
 };
 
 ///Current turn.
 enum TurnType {
-	CurrentTurnX = FiledStateX,
-	CurrentTurnO = FiledStateO
+	TurnX = CellStateX, //just make turn and state binary compatible
+	TurnO = CellStateO
 };
 
+/**
+ * Game itself.
+ * Contains all game logic and can initialize game field in UI.
+ */
 class GameLogic: public QObject {
 	Q_OBJECT
 
@@ -43,15 +47,37 @@ public slots:
 	void onButtonClicked(bool checked);
 
 private:
+	///Set check-mark in given position.
+	///Setup UI cell if necessary.
+	void makeTurn(QPoint position, TurnType turn);
+	///Check whether current step is the last.
+	///@return true if it's a last step.
+	bool checkForWin(QPoint position);
+	///Calculate best turn position for given gamer(X/O).
+	//Will return point (-1,-1) if there are no possible turns.
 	QPoint bestTurnFor(TurnType turnType);
+
+	///Get length of the line started by this point in given direction.
+	int getLineLength(QPoint initialPoint, QPoint direction);
+	///Calculate weight for this point for given cell state.
+	///@return 0 - useless point, -1 - impossible point, >0 - good point.
+	int calculateWeightFor(QPoint position, CellState desiredState);
+	///Calculate number of cells, non blocked by enemy or border in given direction.
+	int calculateMaxLineLength(QPoint initialPoint, QPoint direction, CellState desiredState);
+	///Calculate number of cells, with desired stated in given direction (before first border).
+	///Except initial point itself.
+	int calculateFilledCells(QPoint initialPoint, QPoint direction, CellState desiredState);
+
+	void initGameField();
+	void cleanGameField();
 
 private:
 	///Initialized by @link initializeGame()
-	bb::cascades::Container* currentGameField_;
+	bb::cascades::Container* currentGameFieldContainer_;
 
-	/// Game area with turns info.
+	/// Game field with turns info.
 	/// Index like a[x][y]
-	unsigned char **gameArea_;
+	CellState **gameField_;
 };
 
 #endif /* GAMELOGIC_H_ */

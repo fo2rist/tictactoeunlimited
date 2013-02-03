@@ -12,13 +12,13 @@ Page {
             imageSource: "asset:///images/bg4.png"
         }
         
-	    Container {
-	        id: gameField
-	        
-	        Label {
-	            text: "    Tic tac toe"
+        Container {
+            id: gameField
+            
+            Label {
+                text: "    Tic tac toe"
                 textStyle.fontSize: FontSize.Large
             }
-	    }
+        }
     }
 }
