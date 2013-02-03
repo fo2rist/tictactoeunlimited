@@ -1,7 +1,7 @@
 import bb.cascades 1.0
 
 Page {
-    onCreationCompleted: game.initializeField(gameField)
+    onCreationCompleted: game.initializeGame(gameField)
     
     Container {
         layout: DockLayout {
@@ -16,7 +16,7 @@ Page {
 	        id: gameField
 	        
 	        Label {
-	            text: "Tic tac toe"
+	            text: "    Tic tac toe"
                 textStyle.fontSize: FontSize.Large
             }
 	    }

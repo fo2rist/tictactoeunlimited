@@ -17,18 +17,7 @@
 
 using namespace bb::cascades;
 
-///Possible states for game fields.
-enum FieldState {
-	FiledStateEmpty = 0,
-	FiledStateX = 1,
-	FiledStateO = 2
-};
-
-///Current turn.
-enum CurrentTurn {
-	CurrentTurnX = FiledStateX,
-	CurrentTurnO = FiledStateO
-};
+static const char *POSITION_PROPERTY = "position_property";
 
 //Default game filed size for 1280x768 screen
 static const int GAME_WIDTH = 6;
@@ -53,8 +42,10 @@ GameLogic::~GameLogic() {
 	delete[] gameArea_;
 }
 
-void GameLogic::initializeField(Container *gameFieldContainer) {
-	for (int i=0; i<GAME_HEIGHT; i++) {
+void GameLogic::initializeGame(Container *gameFieldContainer) {
+	currentGameField_ = gameFieldContainer;
+
+	for (int y=0; y<GAME_HEIGHT; ++y) {
 		Container *row = Container::create()
 				.parent(gameFieldContainer)
 				.horizontal(HorizontalAlignment::Center)
@@ -62,7 +53,7 @@ void GameLogic::initializeField(Container *gameFieldContainer) {
 							.parent(gameFieldContainer)
 							.orientation(LayoutOrientation::LeftToRight));
 
-		for (int j=0; j<GAME_WIDTH; j++) {
+		for (int x=0; x<GAME_WIDTH; ++x) {
 			ImageToggleButton* imageButton = ImageToggleButton::create()
 					.parent(row)
 					.imageDefault(QUrl("asset:///images/cell_empty.png"))
@@ -72,10 +63,21 @@ void GameLogic::initializeField(Container *gameFieldContainer) {
 					.imagePressedChecked(QUrl("asset:///images/cell_x.png"))
 					.imageDisabledUnchecked(QUrl("asset:///images/cell_o.png"))
 					.preferredSize(130, 130)
-					.margins(0, 0, 0, 0);
+					.margins(0, 0, 0, 0)
+					.connect(SIGNAL(checkedChanged(bool)),
+							this, SLOT(onButtonClicked(bool)));
+			imageButton->setProperty(POSITION_PROPERTY, QPoint(x, y)); //Store button position in button itself
 			row->add(imageButton);
 		}
-
 		gameFieldContainer->add(row);
 	}
+}
+
+void GameLogic::onButtonClicked(bool checked) {
+	ImageToggleButton* clickedButton = qobject_cast<ImageToggleButton*>(QObject::sender());
+	clickedButton->setEnabled(false); //Disable next turn
+}
+
+QPoint GameLogic::bestTurnFor(TurnType turnType) {
+	return QPoint();
 }

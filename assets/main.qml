@@ -4,6 +4,11 @@ import bb.cascades 1.0
 NavigationPane {
     id: navigationPane
     
+    onCreationCompleted: {
+        //DEBUG
+        playButton.clicked()
+    }
+        
     attachedObjects: [
         ComponentDefinition {
             id: gamePageDefinition;
@@ -15,13 +20,6 @@ NavigationPane {
         }
     ]
     
-    onCreationCompleted: {
-        // enable layout to adapt to the device rotation
-        // don't forget to enable screen rotation in bar-bescriptor.xml (Application->Orientation->Auto-orient)
-        OrientationSupport.supportedDisplayOrientation = SupportedDisplayOrientation.All;
-        //DEBUG
-        playButton.clicked()
-    }
     
     Page {
         Container {

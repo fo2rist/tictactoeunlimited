@@ -17,6 +17,19 @@ namespace bb {
 }
 class QPoint;
 
+///Possible states for game fields.
+enum FieldState {
+	FiledStateEmpty = 0,
+	FiledStateX = 1,
+	FiledStateO = 2
+};
+
+///Current turn.
+enum TurnType {
+	CurrentTurnX = FiledStateX,
+	CurrentTurnO = FiledStateO
+};
+
 class GameLogic: public QObject {
 	Q_OBJECT
 
@@ -24,12 +37,18 @@ public:
 	GameLogic(QObject* parent = 0);
 	virtual ~GameLogic();
 
-	Q_INVOKABLE void initializeField(bb::cascades::Container *gameFieldContainer);
+	Q_INVOKABLE void initializeGame(bb::cascades::Container *gameFieldContainer);
+
+public slots:
+	void onButtonClicked(bool checked);
 
 private:
-	QPoint bestTurnFor();
+	QPoint bestTurnFor(TurnType turnType);
 
 private:
+	///Initialized by @link initializeGame()
+	bb::cascades::Container* currentGameField_;
+
 	/// Game area with turns info.
 	/// Index like a[x][y]
 	unsigned char **gameArea_;

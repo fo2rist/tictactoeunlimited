@@ -22,4 +22,6 @@ TicTacToeUnlimited::TicTacToeUnlimited(bb::cascades::Application *app)
     AbstractPane *root = qml->createRootObject<AbstractPane>();
     // set created root object as a scene
     app->setScene(root);
+    //Disable menu
+    app->setMenuEnabled(false);
 }
