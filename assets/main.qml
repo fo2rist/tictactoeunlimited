@@ -44,14 +44,14 @@ NavigationPane {
 	                } 
 	            }
 	            
-//		        Button {
-//		            id: settingsButton
-//	                text: "Settings"
-//	                onClicked: {
-//	                    var page = settingsPageDefinition.createObject();
-//	                    navigationPane.push(page);
-//	                } 
-//	            }
+		        Button {
+		            id: settingsButton
+	                text: "Settings"
+	                onClicked: {
+	                    var page = settingsPageDefinition.createObject();
+	                    navigationPane.push(page);
+	                } 
+	            }
 		    }
 		}
 	}

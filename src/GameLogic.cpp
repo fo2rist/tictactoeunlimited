@@ -46,6 +46,11 @@ static const QPoint directionSE = QPoint(1, 1);
 GameLogic::GameLogic(QObject *parent)
 : QObject(parent) {
 	gameField_ = 0;
+
+	C_userWin_ = 4;
+	C_enemyWin_ = 3;
+	C_turnsLeftToWin_ = 1000;
+	C_freeLinesAroundCell_ = 10;
 }
 
 GameLogic::~GameLogic() {
@@ -87,6 +92,14 @@ void GameLogic::initializeGame(Container *gameFieldContainer) {
 		}
 		gameFieldContainer->add(row);
 	}
+}
+
+void GameLogic::setParameters(QString c_usersWin, QString c_aisWin, QString c_cellsLeft, QString c_freeLines) {
+	bool result;
+	C_userWin_ = c_usersWin.toInt(&result, 10);
+	C_enemyWin_ = c_aisWin.toInt(&result, 10);
+	C_turnsLeftToWin_ = c_cellsLeft.toInt(&result, 10);
+	C_freeLinesAroundCell_ = c_freeLines.toInt(&result, 10);
 }
 
 void GameLogic::onButtonClicked(bool checked) {
@@ -216,7 +229,7 @@ QPoint GameLogic::bestTurnFor(TurnType turnType) {
 			int playersWeight = calculateWeightFor(position, desiredState);
 			int enemysWeight = calculateWeightFor(position, enemysState);
 
-			int total = playersWeight*4 + enemysWeight*3;
+			int total = playersWeight*C_userWin_ + enemysWeight*C_enemyWin_;
 			if (total > bestWeight) {
 				bestWeight = total;
 				bestPoint = position;
@@ -303,10 +316,8 @@ int GameLogic::calculateWeightFor(QPoint position, CellState desiredState) {
 	}
 
 	//If win possible
-	const int turnsLeftWeight = 10000;
-	const int linesLengthWeight = 100;
-	return (WIN_LINE - turnsLeftToWin) * turnsLeftWeight
-			+ cumulativeLinesLength * linesLengthWeight;
+	return (WIN_LINE - turnsLeftToWin) * C_turnsLeftToWin_
+			+ cumulativeLinesLength * C_freeLinesAroundCell_;
 }
 
 int GameLogic::calculateMaxLineLength(QPoint initialPoint, QPoint direction, CellState desiredState) {

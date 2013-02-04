@@ -42,6 +42,7 @@ public:
 	virtual ~GameLogic();
 
 	Q_INVOKABLE void initializeGame(bb::cascades::Container *gameFieldContainer);
+	Q_INVOKABLE void setParameters(QString c_usersWin, QString c_aisWin, QString c_cellsLeft, QString c_freeLines);
 
 public slots:
 	void onButtonClicked(bool checked);
@@ -79,6 +80,12 @@ private:
 	/// Game field with turns info.
 	/// Index like a[x][y]
 	CellState **gameField_;
+
+	//Game logic coefficients
+	int C_userWin_;
+	int C_enemyWin_;
+	int C_turnsLeftToWin_;
+	int C_freeLinesAroundCell_;
 };
 
 #endif /* GAMELOGIC_H_ */
