@@ -60,14 +60,16 @@ GameLogic::~GameLogic() {
 }
 
 void GameLogic::initializeGame(Container *gameFieldContainer, int width, int height) {
+	//Clean old game
+	cleanGameField();
+
+	//Set new game parameters
 	currentGameFieldContainer_ = gameFieldContainer;
 	gameWidth_ = width;
 	gameHeight_ = height;
 	int cellSize = DEFAULT_SCREEN_WIDTH / width;
 
-
 	//Init game field
-	cleanGameField();
 	initGameField();
 
 	//Init UI
