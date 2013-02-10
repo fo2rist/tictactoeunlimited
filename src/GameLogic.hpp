@@ -41,7 +41,10 @@ public:
 	GameLogic(QObject* parent = 0);
 	virtual ~GameLogic();
 
-	Q_INVOKABLE void initializeGame(bb::cascades::Container *gameFieldContainer);
+	///Init game with width/height number of cells.
+	///Will place buttons in container and start game.
+	Q_INVOKABLE void initializeGame(bb::cascades::Container *gameFieldContainer, int width, int height);
+	///Debug opiton to tune AI's parameters.
 	Q_INVOKABLE void setParameters(QString c_usersWin, QString c_aisWin, QString c_cellsLeft, QString c_freeLines);
 
 public slots:
@@ -76,10 +79,16 @@ private:
 private:
 	///Initialized by @link initializeGame()
 	bb::cascades::Container* currentGameFieldContainer_;
+	int gameWidth_;
+	int gameHeight_;
 
 	/// Game field with turns info.
 	/// Index like a[x][y]
 	CellState **gameField_;
+
+	int gameNumber_;
+	int numberOfWins_;
+	int numberOfDefeats_;
 
 	//Game logic coefficients
 	int C_userWin_;

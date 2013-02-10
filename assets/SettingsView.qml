@@ -1,6 +1,7 @@
 import bb.cascades 1.0
 
 Page {
+    //BG by http://dioma.deviantart.com/
     Container {
         Label {
             text: "Settings"
@@ -12,7 +13,7 @@ Page {
 	        TextField {
 	            id: c_usersWin
 	            inputMode: TextFieldInputMode.NumbersAndPunctuation
-	            text: "4"
+	            text: "10"
 	        }
         }
         Container {
@@ -22,7 +23,7 @@ Page {
 	        TextField {
 	            id: c_aisWin
 	            inputMode: TextFieldInputMode.NumbersAndPunctuation
-	            text: "3"
+	            text: "9"
 	        }
         }
         Container {
@@ -32,7 +33,7 @@ Page {
 	        TextField {
 	            id: c_cellsLeft
 	            inputMode: TextFieldInputMode.NumbersAndPunctuation
-	            text: "1000"
+	            text: "100"
 	        }
         }
         Container {
@@ -42,21 +43,13 @@ Page {
 	        TextField {
 	            id: c_freeLines
 	            inputMode: TextFieldInputMode.NumbersAndPunctuation
-	            text: "10"
+	            text: "1"
 	        }
         }
         Button {
             text: "Save"
             horizontalAlignment: HorizontalAlignment.Center
             onClicked: { game.setParameters(c_usersWin.text, c_aisWin.text, c_cellsLeft.text, c_freeLines.text) }
-        }
-    }
-    
-    paneProperties: NavigationPaneProperties {
-        backButton: ActionItem {
-            title: "Previous page"
-            imageSource: "asset:///back.png"
-            onTriggered: { navigationPane.pop(); }
         }
     }
 }

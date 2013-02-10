@@ -26,12 +26,10 @@ using namespace bb::cascades;
 static const char *POSITION_PROPERTY = "position_property";
 static const char *BUTTONS_NAME = "cell_button";
 
-//Length of the line to win
-static const int WIN_LINE = 4;
+static const int DEFAULT_SCREEN_WIDTH = 720;
 
-//Default game filed size for 1280x768 screen
-static const int GAME_WIDTH = 6;
-static const int GAME_HEIGHT = 10;
+//Length of the line to win
+static const int WIN_LINE_LENGTH = 4;
 
 //Directions to walk through cells
 static const QPoint directionN = QPoint(0, -1);
@@ -47,25 +45,33 @@ GameLogic::GameLogic(QObject *parent)
 : QObject(parent) {
 	gameField_ = 0;
 
-	C_userWin_ = 4;
-	C_enemyWin_ = 3;
-	C_turnsLeftToWin_ = 1000;
-	C_freeLinesAroundCell_ = 10;
+	gameNumber_ = 0;
+	numberOfWins_ = 0;
+	numberOfDefeats_ = 0;
+
+	C_userWin_ = 10;
+	C_enemyWin_ = 9;
+	C_turnsLeftToWin_ = 100;
+	C_freeLinesAroundCell_ = 1;
 }
 
 GameLogic::~GameLogic() {
 	cleanGameField();
 }
 
-void GameLogic::initializeGame(Container *gameFieldContainer) {
+void GameLogic::initializeGame(Container *gameFieldContainer, int width, int height) {
 	currentGameFieldContainer_ = gameFieldContainer;
+	gameWidth_ = width;
+	gameHeight_ = height;
+	int cellSize = DEFAULT_SCREEN_WIDTH / width;
+
 
 	//Init game field
 	cleanGameField();
 	initGameField();
 
 	//Init UI
-	for (int y=0; y<GAME_HEIGHT; ++y) {
+	for (int y=0; y<gameHeight_; ++y) {
 		Container *row = Container::create()
 				.parent(gameFieldContainer)
 				.horizontal(HorizontalAlignment::Center)
@@ -73,7 +79,7 @@ void GameLogic::initializeGame(Container *gameFieldContainer) {
 							.parent(gameFieldContainer)
 							.orientation(LayoutOrientation::LeftToRight));
 
-		for (int x=0; x<GAME_WIDTH; ++x) {
+		for (int x=0; x<gameWidth_; ++x) {
 			ImageToggleButton* imageButton = ImageToggleButton::create()
 					.parent(row)
 					.objectName(BUTTONS_NAME)
@@ -83,9 +89,10 @@ void GameLogic::initializeGame(Container *gameFieldContainer) {
 					.imageDisabledChecked(QUrl("asset:///images/cell_x.png"))      //  >-Checked by user
 					.imagePressedChecked(QUrl("asset:///images/cell_x.png"))       // /
 					.imageDisabledUnchecked(QUrl("asset:///images/cell_o.png"))    //   -Checked by AI
-					.preferredSize(130, 130)
-					.margins(0, 0, 0, 0)
-					.connect(SIGNAL(checkedChanged(bool)),
+					.preferredSize(cellSize, cellSize)
+					.margins(0, 0, 0, 0);
+
+					QObject::connect(imageButton, SIGNAL(checkedChanged(bool)),
 							this, SLOT(onButtonClicked(bool)));
 			imageButton->setProperty(POSITION_PROPERTY, QPoint(x, y)); //Store button position in button itself
 			row->add(imageButton);
@@ -145,18 +152,30 @@ void GameLogic::resetGame() {
 		button->setChecked(false);
 	}
 
+	//increase game number to switch first player
+	gameNumber_++;
+	//Make AI's turn every second time
+	if (gameNumber_ % 2 == 1) {
+		QPoint computersTurnPosition = bestTurnFor(TurnO);
+		makeTurn(computersTurnPosition, TurnO);
+	}
 }
 
 bool GameLogic::checkForWin(QPoint position){
-	if (getLineLength(position, directionE) + getLineLength(position, directionW) > WIN_LINE
-			|| getLineLength(position, directionN) + getLineLength(position, directionS) > WIN_LINE
-			|| getLineLength(position, directionNE) + getLineLength(position, directionSW) > WIN_LINE
-			|| getLineLength(position, directionNW) + getLineLength(position, directionSE) > WIN_LINE) {
+	if (getLineLength(position, directionE) + getLineLength(position, directionW) > WIN_LINE_LENGTH
+			|| getLineLength(position, directionN) + getLineLength(position, directionS) > WIN_LINE_LENGTH
+			|| getLineLength(position, directionNE) + getLineLength(position, directionSW) > WIN_LINE_LENGTH
+			|| getLineLength(position, directionNW) + getLineLength(position, directionSE) > WIN_LINE_LENGTH) {
 
 		CellState cellState = gameField_[position.x()][position.y()];
-		QString text = (cellState == CellStateX) ?
-				"You win!" :
-				"Computer win...";
+		QString text;
+		if (cellState == CellStateX) {
+			text= "You win!";
+			numberOfWins_++;
+		} else {
+			text = "Computer win...";
+			numberOfDefeats_++;
+		}
 
 		Button *okButton = Button::create("Ok");
 		Dialog* winDialog = Dialog::create()
@@ -223,8 +242,8 @@ QPoint GameLogic::bestTurnFor(TurnType turnType) {
 	//Go through matrix an look for best point
 	int bestWeight = 0;
 	QPoint bestPoint = QPoint(-1, -1); //impossible point
-	for (int x = 0; x < GAME_WIDTH; ++x) {
-		for (int y = 0; y < GAME_HEIGHT; ++y) {
+	for (int x = 0; x < gameWidth_; ++x) {
+		for (int y = 0; y < gameHeight_; ++y) {
 			QPoint position = QPoint(x, y);
 			int playersWeight = calculateWeightFor(position, desiredState);
 			int enemysWeight = calculateWeightFor(position, enemysState);
@@ -250,9 +269,9 @@ int GameLogic::getLineLength(QPoint initialPoint, QPoint direction) {
 		result++; //Take into account current cell and move forward in given direction.
 		x += direction.x();
 		y += direction.y();
-	} while(x < GAME_WIDTH
+	} while(x < gameWidth_
 			&& x >= 0
-			&& y < GAME_HEIGHT
+			&& y < gameHeight_
 			&& y >= 0
 			&& gameField_[x][y] == desiredCellState);
 
@@ -268,46 +287,46 @@ int GameLogic::calculateWeightFor(QPoint position, CellState desiredState) {
 	//1 Maximal possible line * lines count (low priority factor)
 	int cumulativeLinesLength = 0;
 	//2 Turns left to win if win possible (high priority)
-	int turnsLeftToWin = WIN_LINE;
+	int turnsLeftToWin = WIN_LINE_LENGTH;
 
 	int lineN_S = calculateMaxLineLength(position, directionN, desiredState)
 			+ calculateMaxLineLength(position, directionS, desiredState);
-	if (lineN_S > WIN_LINE) { //Take into account only directions that may win
+	if (lineN_S > WIN_LINE_LENGTH) { //Take into account only directions that may win
 		cumulativeLinesLength += lineN_S;
 
 		int cellsFilled = calculateFilledCells(position, directionN, desiredState)
 					+ calculateFilledCells(position, directionS, desiredState);
-		turnsLeftToWin = qMin(turnsLeftToWin, WIN_LINE - cellsFilled);
+		turnsLeftToWin = qMin(turnsLeftToWin, WIN_LINE_LENGTH - cellsFilled);
 	}
 
 	int lineE_W = calculateMaxLineLength(position, directionE, desiredState)
 			+ calculateMaxLineLength(position, directionW, desiredState);
-	if (lineE_W > WIN_LINE) { //Take into account only directions that may win
+	if (lineE_W > WIN_LINE_LENGTH) { //Take into account only directions that may win
 		cumulativeLinesLength += lineE_W;
 
 		int cellsFilled = calculateFilledCells(position, directionE, desiredState)
 					+ calculateFilledCells(position, directionW, desiredState);
-		turnsLeftToWin = qMin(turnsLeftToWin, WIN_LINE - cellsFilled);
+		turnsLeftToWin = qMin(turnsLeftToWin, WIN_LINE_LENGTH - cellsFilled);
 	}
 
 	int lineNE_SW = calculateMaxLineLength(position, directionNE, desiredState)
 			+ calculateMaxLineLength(position, directionSW, desiredState);
-	if (lineNE_SW > WIN_LINE) { //Take into account only directions that may win
+	if (lineNE_SW > WIN_LINE_LENGTH) { //Take into account only directions that may win
 		cumulativeLinesLength += lineNE_SW;
 
 		int cellsFilled = calculateFilledCells(position, directionNE, desiredState)
 					+ calculateFilledCells(position, directionSW, desiredState);
-		turnsLeftToWin = qMin(turnsLeftToWin, WIN_LINE - cellsFilled);
+		turnsLeftToWin = qMin(turnsLeftToWin, WIN_LINE_LENGTH - cellsFilled);
 	}
 
 	int lineNW_SE = calculateMaxLineLength(position, directionNW, desiredState)
 			+ calculateMaxLineLength(position, directionSE, desiredState);
-	if (lineNW_SE > WIN_LINE) { //Take into account only directions that may win
+	if (lineNW_SE > WIN_LINE_LENGTH) { //Take into account only directions that may win
 		cumulativeLinesLength += lineNW_SE;
 
 		int cellsFilled = calculateFilledCells(position, directionNW, desiredState)
 					+ calculateFilledCells(position, directionSE, desiredState);
-		turnsLeftToWin = qMin(turnsLeftToWin, WIN_LINE - cellsFilled);
+		turnsLeftToWin = qMin(turnsLeftToWin, WIN_LINE_LENGTH - cellsFilled);
 	}
 
 	//If win impossible
@@ -316,8 +335,8 @@ int GameLogic::calculateWeightFor(QPoint position, CellState desiredState) {
 	}
 
 	//If win possible
-	return (WIN_LINE - turnsLeftToWin) * C_turnsLeftToWin_
-			+ cumulativeLinesLength * C_freeLinesAroundCell_;
+	return C_turnsLeftToWin_ * qPow((WIN_LINE_LENGTH - turnsLeftToWin), 2)
+			+ C_freeLinesAroundCell_ * cumulativeLinesLength;
 }
 
 int GameLogic::calculateMaxLineLength(QPoint initialPoint, QPoint direction, CellState desiredState) {
@@ -326,9 +345,9 @@ int GameLogic::calculateMaxLineLength(QPoint initialPoint, QPoint direction, Cel
 
 	int result = 0;
 	//Calculate our own and empty cells
-	while (x < GAME_WIDTH
+	while (x < gameWidth_
 			&& x >= 0
-			&& y < GAME_HEIGHT
+			&& y < gameHeight_
 			&& y >= 0
 			&& (gameField_[x][y] == desiredState || gameField_[x][y] == CellStateEmpty)) {
 		result++; //Take into account current cell and move forward in given direction.
@@ -346,9 +365,9 @@ int GameLogic::calculateFilledCells(QPoint initialPoint, QPoint direction, CellS
 
 	int result = 0;
 	//Go through own cells
-	while (x < GAME_WIDTH
+	while (x < gameWidth_
 			&& x >= 0
-			&& y < GAME_HEIGHT
+			&& y < gameHeight_
 			&& y >= 0
 			&& (gameField_[x][y] == desiredState)) {
 		result++;
@@ -360,10 +379,10 @@ int GameLogic::calculateFilledCells(QPoint initialPoint, QPoint direction, CellS
 }
 
 void GameLogic::initGameField() {
-	gameField_ = new CellState*[GAME_WIDTH];
-	for (int x = 0; x < GAME_WIDTH; ++x) {
-		gameField_[x] = new CellState[GAME_HEIGHT];
-		for (int y = 0; y < GAME_HEIGHT; ++y) {
+	gameField_ = new CellState*[gameWidth_];
+	for (int x = 0; x < gameWidth_; ++x) {
+		gameField_[x] = new CellState[gameHeight_];
+		for (int y = 0; y < gameHeight_; ++y) {
 			gameField_[x][y] = CellStateEmpty;
 		}
 	}
@@ -371,7 +390,7 @@ void GameLogic::initGameField() {
 
 void GameLogic::cleanGameField() {
 	if (gameField_ != 0) {
-		for (int x = 0; x < GAME_WIDTH; ++x) {
+		for (int x = 0; x < gameWidth_; ++x) {
 			delete[] gameField_[x];
 		}
 		delete[] gameField_;
