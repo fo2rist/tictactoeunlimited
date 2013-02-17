@@ -3,11 +3,6 @@ import bb.cascades 1.0
 
 NavigationPane {
     id: navigationPane
-    
-    onCreationCompleted: {
-        //DEBUG
-        playButton.clicked()
-    }
 
     onPopTransitionEnded: {
         page.destroy();
@@ -17,10 +12,6 @@ NavigationPane {
         ComponentDefinition {
             id: gamePageDefinition;
             source: "GameView.qml"
-        },
-        ComponentDefinition {
-            id: settingsPageDefinition;
-            source: "SettingsView.qml"
         }
     ]
 
@@ -43,17 +34,17 @@ NavigationPane {
                 topMargin: 480
 
 	            ImageView {
-	                imageSource: "asset:///images/tictactoe.png"
+				    imageSource: "asset:///images/tictactoe.png"
                     horizontalAlignment: HorizontalAlignment.Center
                 }
 	
 	            ImageView {
-	                imageSource: "asset:///images/play.png"
+				    imageSource: "asset:///images/play.png"
                     horizontalAlignment: HorizontalAlignment.Center
                 }
 
                 ImageButton {
-                    id: playButton_6_6
+	                id: playButton_6_6
                     defaultImageSource: "asset:///images/6x6.png"
                     horizontalAlignment: HorizontalAlignment.Center
                     onClicked: {
@@ -62,33 +53,33 @@ NavigationPane {
                         page.gameHeight = 6;
                         page.initializeGame();
                         navigationPane.push(page);
-                    } 
-	            }
+                    }
+                }
                 ImageButton {
-	                id: playButton_6_10
-                    defaultImageSource: "asset:///images/6x10.png"
+	                id: playButton_8_8
+                    defaultImageSource: "asset:///images/8x8.png"
                     horizontalAlignment: HorizontalAlignment.Center
                     onClicked: {
 	                    var page = gamePageDefinition.createObject();
-                        page.gameWidth = 6;
-                        page.gameHeight = 10;
+                        page.gameWidth = 8;
+                        page.gameHeight = 8;
                         page.initializeGame();
                         navigationPane.push(page);
 	                } 
 	            }
                 ImageButton {
-	                id: playButton_8_14
-                    defaultImageSource: "asset:///images/8x14.png"
+	                id: playButton_9_9
+                    defaultImageSource: "asset:///images/9x9.png"
                     horizontalAlignment: HorizontalAlignment.Center
                     onClicked: {
 	                    var page = gamePageDefinition.createObject();
-                        page.gameWidth = 8;
-                        page.gameHeight = 14;
+                        page.gameWidth = 9;
+                        page.gameHeight = 9;
                         page.initializeGame();
                         navigationPane.push(page);
                     } 
 	            }
-                
+
                 //Separator
                 Container {
                     layoutProperties: StackLayoutProperties {
@@ -99,15 +90,6 @@ NavigationPane {
                 ImageView {
                     imageSource: "asset:///images/unlimited.png"
                 }
-
-//                Button {
-//		            id: settingsButton
-//	                text: "Settings"
-//	                onClicked: {
-//	                    var page = settingsPageDefinition.createObject();
-//	                    navigationPane.push(page);
-//	                }
-//                }
             }
 		}
 	}
