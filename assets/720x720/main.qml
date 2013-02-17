@@ -36,13 +36,9 @@ NavigationPane {
 	            ImageView {
 				    imageSource: "asset:///images/tictactoe.png"
                     horizontalAlignment: HorizontalAlignment.Center
+                    opacity: 0.5
                 }
 	
-	            ImageView {
-				    imageSource: "asset:///images/play.png"
-                    horizontalAlignment: HorizontalAlignment.Center
-                }
-
                 ImageButton {
 	                id: playButton_6_6
                     defaultImageSource: "asset:///images/6x6.png"
@@ -89,6 +85,7 @@ NavigationPane {
 
                 ImageView {
                     imageSource: "asset:///images/unlimited.png"
+                    opacity: 0.5
                 }
             }
 		}

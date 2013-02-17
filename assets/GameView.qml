@@ -22,9 +22,13 @@ Page {
             id: gameField
 
             horizontalAlignment: HorizontalAlignment.Center
-            Label {
-                text: "    Tic tac toe"
-                textStyle.fontSize: FontSize.Large
+            
+            ImageView {
+                imageSource: "asset:///images/tictactoe.png"
+                horizontalAlignment: HorizontalAlignment.Center
+                opacity: 0.7
+                maxHeight: 100.0
+                scalingMethod: ScalingMethod.AspectFit
             }
         }
     }
