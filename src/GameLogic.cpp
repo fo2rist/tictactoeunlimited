@@ -11,6 +11,7 @@
 #include <bb/cascades/Button>
 #include <bb/cascades/Container>
 #include <bb/cascades/ImagePaint>
+#include <bb/cascades/ImageButton>
 #include <bb/cascades/DockLayout>
 #include <bb/cascades/Label>
 #include <bb/cascades/Dialog>
@@ -130,11 +131,7 @@ void GameLogic::onButtonClicked(bool checked) {
 	QPoint computersTurnPosition = bestTurnFor(TurnO);
 	//Go ahead
 	if (computersTurnPosition == QPoint(-1, -1)) {
-		Dialog* waitDialog = Dialog::create()
-					.content(Container::create()
-					.add(ActivityIndicator::create())
-					.add(Label::create("No turns!")));
-			waitDialog->open();
+		showGameOverDialog("asset:///images/dialog_no_turns.png");
 		return;
 	}
 	makeTurn(computersTurnPosition, TurnO);
@@ -170,33 +167,16 @@ bool GameLogic::checkForWin(QPoint position){
 			|| getLineLength(position, directionNW) + getLineLength(position, directionSE) > WIN_LINE_LENGTH) {
 
 		CellState cellState = gameField_[position.x()][position.y()];
-		QString text;
+		QString background;
 		if (cellState == CellStateX) {
-			text= "You win!";
+			background= "asset:///images/dialog_win.png";
 			numberOfWins_++;
 		} else {
-			text = "Computer win...";
+			background = "asset:///images/dialog_lose.png";
 			numberOfDefeats_++;
 		}
 
-		Button *okButton = Button::create("Ok");
-		Dialog* winDialog = Dialog::create()
-				.content(Container::create()
-						.background(ImagePaint(QUrl("asset:///images/dialog_bg.png"), RepeatPattern::Fill))
-						.layout(DockLayout::create())
-						.horizontal(HorizontalAlignment::Center)
-						.vertical(VerticalAlignment::Center)
-						.add(Container::create()
-								.layout(StackLayout::create()
-										.orientation(LayoutOrientation::TopToBottom))
-								.add(Label::create(text).horizontal(HorizontalAlignment::Center))
-								.add(okButton))
-				);
-		QObject::connect(okButton, SIGNAL(clicked()),
-						winDialog, SLOT(close()));
-		QObject::connect(okButton, SIGNAL(clicked()),
-						this, SLOT(resetGame()));
-		winDialog->open();
+		showGameOverDialog(background);
 		return true;
 	}
 	return false;
@@ -398,4 +378,31 @@ void GameLogic::cleanGameField() {
 		delete[] gameField_;
 		gameField_ = 0;
 	}
+}
+
+void GameLogic::showGameOverDialog(const QString& background){
+	ImageButton *okButton = ImageButton::create()
+							.horizontal(HorizontalAlignment::Center)
+							.vertical(VerticalAlignment::Bottom)
+							.defaultImage(QUrl("asset:///images/ok.png"))
+							.pressedImage(QUrl("asset:///images/ok.png"));
+
+	Dialog* winDialog = Dialog::create()
+			.content(Container::create()
+					.preferredSize(540, 360)
+					.background(ImagePaint(QUrl(background), RepeatPattern::Fill))
+					.horizontal(HorizontalAlignment::Center)
+					.vertical(VerticalAlignment::Center)
+					.add(Container::create()
+							.preferredSize(500, 320)
+							.layout(DockLayout::create())
+						.vertical(VerticalAlignment::Center)
+						.horizontal(HorizontalAlignment::Center)
+						.add(okButton))
+			);
+	QObject::connect(okButton, SIGNAL(clicked()),
+					winDialog, SLOT(close()));
+	QObject::connect(okButton, SIGNAL(clicked()),
+					this, SLOT(resetGame()));
+	winDialog->open();
 }

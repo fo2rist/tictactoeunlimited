@@ -76,6 +76,8 @@ private:
 	void initGameField();
 	void cleanGameField();
 
+	void showGameOverDialog(const QString& background);
+
 private:
 	///Initialized by @link initializeGame()
 	bb::cascades::Container* currentGameFieldContainer_;
