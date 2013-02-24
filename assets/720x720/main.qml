@@ -12,6 +12,10 @@ NavigationPane {
         ComponentDefinition {
             id: gamePageDefinition;
             source: "GameView.qml"
+        },
+        ComponentDefinition {
+            id: aboutPageDefinition;
+            source: "AboutView.qml"
         }
     ]
 
@@ -36,7 +40,7 @@ NavigationPane {
 				    imageSource: "asset:///images/tictactoe.png"
                     horizontalAlignment: HorizontalAlignment.Center
                     opacity: 0.4
-                    maxHeight: 200
+                    maxHeight: 120
                     scalingMethod: ScalingMethod.AspectFit
                 }
 	
@@ -87,14 +91,33 @@ NavigationPane {
                     }
                 }
 
+            }
+
+            Container {
+                layout: StackLayout {
+                    orientation: LayoutOrientation.LeftToRight
+                }
+
+                verticalAlignment: VerticalAlignment.Bottom
+                horizontalAlignment: HorizontalAlignment.Right
+                rightPadding: 10
+                bottomPadding: 10
+
                 ImageView {
-                    imageSource: "asset:///images/unlimited.png"
-                    opacity: 0.4
-                    maxHeight: 160
-                    scalingMethod: ScalingMethod.AspectFit
+	                imageSource: "asset:///images/unlimited.png"
+	                opacity: 0.3
+	                maxHeight: 60
+	                scalingMethod: ScalingMethod.AspectFit
+                }
+	            ImageButton {
+	                defaultImageSource: "asset:///images/info.png"
+	                verticalAlignment: VerticalAlignment.Bottom
+                    onClicked: {
+                        var page = aboutPageDefinition.createObject();
+                        navigationPane.push(page);
+                    }
                 }
             }
-		}
-	}
-
+        }
+    }
 }

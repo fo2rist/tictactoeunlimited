@@ -14,6 +14,10 @@ NavigationPane {
             source: "GameView.qml"
         },
         ComponentDefinition {
+            id: aboutPageDefinition;
+            source: "AboutView.qml"
+        },
+        ComponentDefinition {
             id: settingsPageDefinition;
             source: "SettingsView.qml"
         }
@@ -90,12 +94,6 @@ NavigationPane {
                     }
                 }
 
-                ImageView {
-                    imageSource: "asset:///images/unlimited.png"
-                    opacity: 0.4
-                    scalingMethod: ScalingMethod.AspectFit
-                }
-
 //                Button {
 //		            id: settingsButton
 //	                text: "Settings"
@@ -105,7 +103,32 @@ NavigationPane {
 //	                }
 //                }
             }
+
+            Container {
+                layout: StackLayout {
+                    orientation: LayoutOrientation.LeftToRight
+                }
+
+                verticalAlignment: VerticalAlignment.Bottom
+                horizontalAlignment: HorizontalAlignment.Right
+                rightPadding: 10
+                bottomPadding: 10
+
+                ImageView {
+	                imageSource: "asset:///images/unlimited.png"
+	                opacity: 0.3
+	                maxHeight: 80
+	                scalingMethod: ScalingMethod.AspectFit
+                }
+                ImageButton {
+                    defaultImageSource: "asset:///images/info.png"
+                    verticalAlignment: VerticalAlignment.Bottom
+                    onClicked: {
+                        var page = aboutPageDefinition.createObject();
+                        navigationPane.push(page);
+                    }
+                }
+            }
 		}
 	}
-
 }
