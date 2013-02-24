@@ -4,3 +4,7 @@
 /translations/*.qm
 /translations/Makefile
 /.settings
+/.cproject
+/.device
+/assets/.assets.index
+/config.pri

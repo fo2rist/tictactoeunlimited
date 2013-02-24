@@ -15,22 +15,14 @@ Page {
 
         // Background ImageView
         ImageView {
-            imageSource: "asset:///images/bg7.png"
+            imageSource: "asset:///images/bg.png"
         }
         
         Container {
             id: gameField
 
             horizontalAlignment: HorizontalAlignment.Center
-            
-            ImageView {
-                imageSource: "asset:///images/tictactoe.png"
-                horizontalAlignment: HorizontalAlignment.Center
-                opacity: 0.7
-                maxHeight: 100.0
-                scalingMethod: ScalingMethod.AspectFit
-            }
+            verticalAlignment: VerticalAlignment.Center
         }
     }
-
 }

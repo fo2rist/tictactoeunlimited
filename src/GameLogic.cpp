@@ -27,7 +27,7 @@ using namespace bb::cascades;
 static const char *POSITION_PROPERTY = "position_property";
 static const char *BUTTONS_NAME = "cell_button";
 
-static const int DEFAULT_SCREEN_WIDTH = 710;
+static const int DEFAULT_SCREEN_WIDTH = 660;
 
 //Length of the line to win
 static const int WIN_LINE_LENGTH = 4;
