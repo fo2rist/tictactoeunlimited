@@ -36,6 +36,8 @@ enum TurnType {
  */
 class GameLogic: public QObject {
 	Q_OBJECT
+	Q_PROPERTY( int numberOfWins READ numberOfWins NOTIFY numberOfWinsChanged);
+	Q_PROPERTY( int numberOfDefeats READ numberOfDefeats NOTIFY numberOfDefeatsChanged);
 
 public:
 	GameLogic(QObject* parent = 0);
@@ -46,6 +48,9 @@ public:
 	Q_INVOKABLE void initializeGame(bb::cascades::Container *gameFieldContainer, int width, int height);
 	///Debug opiton to tune AI's parameters.
 	Q_INVOKABLE void setParameters(QString c_usersWin, QString c_aisWin, QString c_cellsLeft, QString c_freeLines);
+
+	int numberOfWins() const;
+	int numberOfDefeats() const;
 
 public slots:
 	void onButtonClicked(bool checked);
@@ -60,23 +65,27 @@ private:
 	bool checkForWin(QPoint position);
 	///Calculate best turn position for given gamer(X/O).
 	//Will return point (-1,-1) if there are no possible turns.
-	QPoint bestTurnFor(TurnType turnType);
+	QPoint bestTurnFor(TurnType turnType) const;
 
 	///Get length of the line started by this point in given direction.
-	int getLineLength(QPoint initialPoint, QPoint direction);
+	int getLineLength(QPoint initialPoint, QPoint direction) const;
 	///Calculate weight for this point for given cell state.
 	///@return 0 - useless point, -1 - impossible point, >0 - good point.
-	int calculateWeightFor(QPoint position, CellState desiredState);
+	int calculateWeightFor(QPoint position, CellState desiredState) const;
 	///Calculate number of cells, non blocked by enemy or border in given direction.
-	int calculateMaxLineLength(QPoint initialPoint, QPoint direction, CellState desiredState);
+	int calculateMaxLineLength(QPoint initialPoint, QPoint direction, CellState desiredState) const;
 	///Calculate number of cells, with desired stated in given direction (before first border).
 	///Except initial point itself.
-	int calculateFilledCells(QPoint initialPoint, QPoint direction, CellState desiredState);
+	int calculateFilledCells(QPoint initialPoint, QPoint direction, CellState desiredState) const;
 
 	void initGameField();
 	void cleanGameField();
 
 	void showGameOverDialog(const QString& background);
+
+signals:
+	void numberOfWinsChanged(int);
+	void numberOfDefeatsChanged(int);
 
 private:
 	///Initialized by @link initializeGame()

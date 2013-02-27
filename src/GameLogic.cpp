@@ -112,6 +112,14 @@ void GameLogic::setParameters(QString c_usersWin, QString c_aisWin, QString c_ce
 	C_freeLinesAroundCell_ = c_freeLines.toInt(&result, 10);
 }
 
+int GameLogic::numberOfWins() const {
+	return numberOfWins_;
+}
+
+int GameLogic::numberOfDefeats() const {
+	return numberOfDefeats_;
+}
+
 void GameLogic::onButtonClicked(bool checked) {
 	if (checked == false) { //Ignore game rest
 		return;
@@ -160,28 +168,6 @@ void GameLogic::resetGame() {
 	}
 }
 
-bool GameLogic::checkForWin(QPoint position){
-	if (getLineLength(position, directionE) + getLineLength(position, directionW) > WIN_LINE_LENGTH
-			|| getLineLength(position, directionN) + getLineLength(position, directionS) > WIN_LINE_LENGTH
-			|| getLineLength(position, directionNE) + getLineLength(position, directionSW) > WIN_LINE_LENGTH
-			|| getLineLength(position, directionNW) + getLineLength(position, directionSE) > WIN_LINE_LENGTH) {
-
-		CellState cellState = gameField_[position.x()][position.y()];
-		QString background;
-		if (cellState == CellStateX) {
-			background= "asset:///images/dialog_win.png";
-			numberOfWins_++;
-		} else {
-			background = "asset:///images/dialog_lose.png";
-			numberOfDefeats_++;
-		}
-
-		showGameOverDialog(background);
-		return true;
-	}
-	return false;
-}
-
 void GameLogic::makeTurn(QPoint position, TurnType turn) {
 	//Find button by position
 	ImageToggleButton* buttonAtPosition;
@@ -207,7 +193,31 @@ void GameLogic::makeTurn(QPoint position, TurnType turn) {
 	}
 }
 
-QPoint GameLogic::bestTurnFor(TurnType turnType) {
+bool GameLogic::checkForWin(QPoint position) {
+	if (getLineLength(position, directionE) + getLineLength(position, directionW) > WIN_LINE_LENGTH
+			|| getLineLength(position, directionN) + getLineLength(position, directionS) > WIN_LINE_LENGTH
+			|| getLineLength(position, directionNE) + getLineLength(position, directionSW) > WIN_LINE_LENGTH
+			|| getLineLength(position, directionNW) + getLineLength(position, directionSE) > WIN_LINE_LENGTH) {
+
+		CellState cellState = gameField_[position.x()][position.y()];
+		QString background;
+		if (cellState == CellStateX) {
+			background= "asset:///images/dialog_win.png";
+			numberOfWins_++;
+			emit numberOfWinsChanged(numberOfWins_);
+		} else {
+			background = "asset:///images/dialog_lose.png";
+			numberOfDefeats_++;
+			emit numberOfDefeatsChanged(numberOfDefeats_);
+		}
+
+		showGameOverDialog(background);
+		return true;
+	}
+	return false;
+}
+
+QPoint GameLogic::bestTurnFor(TurnType turnType) const {
 	CellState desiredState;
 	CellState enemysState;
 	switch (turnType) {
@@ -241,7 +251,7 @@ QPoint GameLogic::bestTurnFor(TurnType turnType) {
 	return bestPoint;
 }
 
-int GameLogic::getLineLength(QPoint initialPoint, QPoint direction) {
+int GameLogic::getLineLength(QPoint initialPoint, QPoint direction) const {
 	int x = initialPoint.x();
 	int y = initialPoint.y();
 
@@ -260,7 +270,7 @@ int GameLogic::getLineLength(QPoint initialPoint, QPoint direction) {
 	return result;
 }
 
-int GameLogic::calculateWeightFor(QPoint position, CellState desiredState) {
+int GameLogic::calculateWeightFor(QPoint position, CellState desiredState) const {
 	//Impossible point
 	if (gameField_[position.x()][position.y()] != CellStateEmpty) {
 		return -1;
@@ -321,7 +331,7 @@ int GameLogic::calculateWeightFor(QPoint position, CellState desiredState) {
 			+ C_freeLinesAroundCell_ * cumulativeLinesLength;
 }
 
-int GameLogic::calculateMaxLineLength(QPoint initialPoint, QPoint direction, CellState desiredState) {
+int GameLogic::calculateMaxLineLength(QPoint initialPoint, QPoint direction, CellState desiredState) const {
 	int x = initialPoint.x();
 	int y = initialPoint.y();
 
@@ -340,7 +350,7 @@ int GameLogic::calculateMaxLineLength(QPoint initialPoint, QPoint direction, Cel
 	return result;
 }
 
-int GameLogic::calculateFilledCells(QPoint initialPoint, QPoint direction, CellState desiredState) {
+int GameLogic::calculateFilledCells(QPoint initialPoint, QPoint direction, CellState desiredState) const {
 	//Start from "next" cell
 	int x = initialPoint.x() + direction.x();
 	int y = initialPoint.y() + direction.y();
