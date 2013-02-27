@@ -16,10 +16,19 @@ Page {
                     mimeType: "text/html"
                     uri: "http://ruswizards.com"
                 }
+            },  
+            Invocation {
+            	id: invokeDiomaPage
+            	query {
+                    mimeType: "text/html"
+                    uri: "http://dioma.deviantart.com/"
+                }
             }  
         ]
 
         background: Color.Black
+
+        bottomPadding: 20.0
 
         //Separator
         Container {
@@ -58,6 +67,14 @@ Page {
         Container {
             layoutProperties: StackLayoutProperties {
                 spaceQuota: 1
+            }
+        }
+        Label {
+            text: "Background by Dioma"
+            textStyle.color: Color.White
+            horizontalAlignment: HorizontalAlignment.Center
+			onTouch: {
+                invokeDiomaPage.trigger("bb.action.OPEN")
             }
         }
     }
