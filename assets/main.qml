@@ -18,6 +18,10 @@ NavigationPane {
             source: "AboutView.qml"
         },
         ComponentDefinition {
+            id: btSetupPageDefinition;
+            source: "BtSetupView.qml"
+        },
+        ComponentDefinition {
             id: settingsPageDefinition;
             source: "SettingsView.qml"
         }
@@ -86,7 +90,17 @@ NavigationPane {
                         navigationPane.push(page);
                     }
 	            }
-                
+                ImageButton {
+                    id: playViaBtButton
+                    defaultImageSource: "asset:///images/m_vs_m.png"
+                    pressedImageSource: "asset:///images/m_vs_m.png"
+                    horizontalAlignment: HorizontalAlignment.Center
+                    topMargin: 120
+                    onClicked: {
+                        var page = btSetupPageDefinition.createObject();
+                        navigationPane.push(page);
+                    }
+                }
                 //Separator
                 Container {
                     layoutProperties: StackLayoutProperties {
