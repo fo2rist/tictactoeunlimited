@@ -168,7 +168,20 @@ void ChatManager::startSPPServer()
 
         m_sppDataThread.init(-1, true);
     } else {
-        showDialog("spp_open_server fail", "errno = " + QString::number(errno) );
+    	switch(errno) {
+		case EMLINK:
+			//A connection to the same service on the same device has already been established.
+			return;
+		case EPERM:
+			showDialog("Failed to start Bluetooth server", "BT initialization failure");
+			break;
+		case ESRVRFAULT:
+			showDialog("Failed to start Bluetooth server", "The operation was aborted by the user.");
+			break;
+		default:
+			showDialog("Failed to start Bluetooth server", "SPP errno = " + QString::number(errno));
+			break;
+		}
     }
 }
 //! [8]

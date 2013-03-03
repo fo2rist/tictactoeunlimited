@@ -50,7 +50,7 @@ void DeviceListing::update()
             map["deviceName"] = QString::fromLatin1(buffer);
             bt_rdev_get_address(next_remote_device, buffer);
             map["deviceAddress"] = QString::fromLatin1(buffer);
-            map["deviceClass"] = QString::number(bt_rdev_get_device_class(next_remote_device, BT_COD_DEVICECLASS));
+            map["deviceClass"] = QString::number(bt_rdev_get_device_class(next_remote_device, BT_COD_DEVICECLASS), 16);
             map["deviceType"] = tr("Bluetooth Devices  Paired");
             m_model->insert(map);
         }
@@ -90,7 +90,7 @@ void DeviceListing::discover()
             map["deviceName"] = QString::fromLatin1(buffer);
             bt_rdev_get_address(next_remote_device, buffer);
             map["deviceAddress"] = QString::fromLatin1(buffer);
-            map["deviceClass"] = QString::number(bt_rdev_get_device_class(next_remote_device, BT_COD_DEVICECLASS));
+            map["deviceClass"] = QString::number(bt_rdev_get_device_class(next_remote_device, BT_COD_DEVICECLASS), 16);
             map["deviceType"] = tr("Bluetooth Devices Nearby");
             m_model->insert(map);
         }

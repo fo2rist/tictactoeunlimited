@@ -16,6 +16,10 @@ NavigationPane {
         ComponentDefinition {
             id: aboutPageDefinition;
             source: "AboutView.qml"
+        },
+        ComponentDefinition {
+            id: btSetupPageDefinition
+            source: "BtSetupView.qml"
         }
     ]
 
@@ -31,24 +35,27 @@ NavigationPane {
 	            imageSource: "asset:///images/bg.png"
 	        }
 
+            ImageView {
+			    imageSource: "asset:///images/tictactoe.png"
+                horizontalAlignment: HorizontalAlignment.Center
+                opacity: 0.4
+                maxHeight: 120
+                scalingMethod: ScalingMethod.AspectFit
+            }
+
             Container {
 		        id: menuContainer
 	            horizontalAlignment: HorizontalAlignment.Fill
                 verticalAlignment: VerticalAlignment.Fill
+                topPadding: 60
 
-	            ImageView {
-				    imageSource: "asset:///images/tictactoe.png"
-                    horizontalAlignment: HorizontalAlignment.Center
-                    opacity: 0.4
-                    maxHeight: 120
-                    scalingMethod: ScalingMethod.AspectFit
-                }
-	
                 ImageButton {
 	                id: playButton_6_6
                     defaultImageSource: "asset:///images/6x6.png"
                     pressedImageSource: "asset:///images/6x6_pressed.png"
                     horizontalAlignment: HorizontalAlignment.Center
+					scaleX: 0.8
+					scaleY: 0.8
                     onClicked: {
 	                    var page = gamePageDefinition.createObject();
                         page.gameWidth = 6;
@@ -62,6 +69,8 @@ NavigationPane {
                     defaultImageSource: "asset:///images/8x8.png"
                     pressedImageSource: "asset:///images/8x8_pressed.png"
                     horizontalAlignment: HorizontalAlignment.Center
+                    scaleX: 0.8
+                    scaleY: 0.8
                     onClicked: {
 	                    var page = gamePageDefinition.createObject();
                         page.gameWidth = 8;
@@ -75,6 +84,8 @@ NavigationPane {
                     defaultImageSource: "asset:///images/9x9.png"
                     pressedImageSource: "asset:///images/9x9_pressed.png"
                     horizontalAlignment: HorizontalAlignment.Center
+                    scaleX: 0.8
+                    scaleY: 0.8
                     onClicked: {
 	                    var page = gamePageDefinition.createObject();
                         page.gameWidth = 9;
@@ -83,6 +94,19 @@ NavigationPane {
                         navigationPane.push(page);
                     }
 	            }
+                ImageButton {
+                    id: playViaBtButton
+                    defaultImageSource: "asset:///images/m_vs_m.png"
+                    pressedImageSource: "asset:///images/m_vs_m.png"
+                    horizontalAlignment: HorizontalAlignment.Center
+                    topMargin: 40
+                    scaleX: 0.8
+                    scaleY: 0.8
+                    onClicked: {
+                        var page = btSetupPageDefinition.createObject();
+                        navigationPane.push(page);
+                    }
+                }
 
                 //Separator
                 Container {
@@ -105,8 +129,8 @@ NavigationPane {
 
                 ImageView {
 	                imageSource: "asset:///images/unlimited.png"
-	                opacity: 0.3
-	                maxHeight: 60
+	                opacity: 0.2
+	                maxHeight: 50
 	                scalingMethod: ScalingMethod.AspectFit
                 }
 	            ImageButton {
