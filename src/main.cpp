@@ -6,9 +6,13 @@
 #include <QLocale>
 #include <QTranslator>
 
+// include JS Debugger / CS Profiler enabler
+// this feature is enabled by default in the debug build only
+#include <Qt/qdeclarativedebug.h>
+
 using namespace bb::cascades;
 
-int main(int argc, char **argv)
+Q_DECL_EXPORT int main(int argc, char **argv)
 {
     // this is where the server is started etc
     Application app(argc, argv);
