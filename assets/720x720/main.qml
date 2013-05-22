@@ -7,15 +7,19 @@ NavigationPane {
     onPopTransitionEnded: {
         page.destroy();
     }
-        
+
     attachedObjects: [
         ComponentDefinition {
-            id: gamePageDefinition;
+            id: gamePageDefinition
             source: "GameView.qml"
         },
         ComponentDefinition {
-            id: aboutPageDefinition;
+            id: aboutPageDefinition
             source: "AboutView.qml"
+        },
+        ComponentDefinition {
+            id: btSetupPageDefinition
+            source: "BtSetupView.qml"
         }
     ]
 
@@ -23,34 +27,37 @@ NavigationPane {
 
     Page {
         Container {
-	        layout: DockLayout {
+            layout: DockLayout {
             }
 
             // Background ImageView
             ImageView {
-	            imageSource: "asset:///images/bg.png"
-	        }
+                imageSource: "asset:///images/bg.png"
+            }
+
+            ImageView {
+                imageSource: "asset:///images/tictactoe.png"
+                horizontalAlignment: HorizontalAlignment.Center
+                opacity: 0.4
+                maxHeight: 120
+                scalingMethod: ScalingMethod.AspectFit
+            }
 
             Container {
-		        id: menuContainer
-	            horizontalAlignment: HorizontalAlignment.Fill
+                id: menuContainer
+                horizontalAlignment: HorizontalAlignment.Fill
                 verticalAlignment: VerticalAlignment.Fill
+                topPadding: 60
 
-	            ImageView {
-				    imageSource: "asset:///images/tictactoe.png"
-                    horizontalAlignment: HorizontalAlignment.Center
-                    opacity: 0.4
-                    maxHeight: 120
-                    scalingMethod: ScalingMethod.AspectFit
-                }
-	
                 ImageButton {
-	                id: playButton_6_6
+                    id: playButton_6_6
                     defaultImageSource: "asset:///images/6x6.png"
                     pressedImageSource: "asset:///images/6x6_pressed.png"
                     horizontalAlignment: HorizontalAlignment.Center
+                    scaleX: 0.8
+                    scaleY: 0.8
                     onClicked: {
-	                    var page = gamePageDefinition.createObject();
+                        var page = gamePageDefinition.createObject();
                         page.gameWidth = 6;
                         page.gameHeight = 6;
                         page.initializeGame();
@@ -58,31 +65,48 @@ NavigationPane {
                     }
                 }
                 ImageButton {
-	                id: playButton_8_8
+                    id: playButton_8_8
                     defaultImageSource: "asset:///images/8x8.png"
                     pressedImageSource: "asset:///images/8x8_pressed.png"
                     horizontalAlignment: HorizontalAlignment.Center
+                    scaleX: 0.8
+                    scaleY: 0.8
                     onClicked: {
-	                    var page = gamePageDefinition.createObject();
+                        var page = gamePageDefinition.createObject();
                         page.gameWidth = 8;
                         page.gameHeight = 8;
                         page.initializeGame();
                         navigationPane.push(page);
-	                }
-	            }
+                    }
+                }
                 ImageButton {
-	                id: playButton_9_9
+                    id: playButton_9_9
                     defaultImageSource: "asset:///images/9x9.png"
                     pressedImageSource: "asset:///images/9x9_pressed.png"
                     horizontalAlignment: HorizontalAlignment.Center
+                    scaleX: 0.8
+                    scaleY: 0.8
                     onClicked: {
-	                    var page = gamePageDefinition.createObject();
+                        var page = gamePageDefinition.createObject();
                         page.gameWidth = 9;
                         page.gameHeight = 9;
                         page.initializeGame();
                         navigationPane.push(page);
                     }
-	            }
+                }
+//                ImageButton {
+//                    id: playViaBtButton
+//                    defaultImageSource: "asset:///images/m_vs_m.png"
+//                    pressedImageSource: "asset:///images/m_vs_m.png"
+//                    horizontalAlignment: HorizontalAlignment.Center
+//                    topMargin: 40
+//                    scaleX: 0.8
+//                    scaleY: 0.8
+//                    onClicked: {
+//                        var page = btSetupPageDefinition.createObject();
+//                        navigationPane.push(page);
+//                    }
+//                }
 
                 //Separator
                 Container {
@@ -94,24 +118,52 @@ NavigationPane {
             }
 
             Container {
-                layout: StackLayout {
-                    orientation: LayoutOrientation.LeftToRight
-                }
+                layout: DockLayout {}
 
                 verticalAlignment: VerticalAlignment.Bottom
-                horizontalAlignment: HorizontalAlignment.Right
-                rightPadding: 10
+                horizontalAlignment: HorizontalAlignment.Fill
+                rightPadding: 30
                 bottomPadding: 10
 
                 ImageView {
-	                imageSource: "asset:///images/unlimited.png"
-	                opacity: 0.3
-	                maxHeight: 60
-	                scalingMethod: ScalingMethod.AspectFit
+                    imageSource: "asset:///images/unlimited.png"
+                    opacity: 0.2
+                    maxHeight: 50
+                    scalingMethod: ScalingMethod.AspectFit
+                    horizontalAlignment: HorizontalAlignment.Center
                 }
-	            ImageButton {
-	                defaultImageSource: "asset:///images/info.png"
-	                verticalAlignment: VerticalAlignment.Bottom
+                
+                Container {
+                    layout: DockLayout {}
+                    
+                    horizontalAlignment: HorizontalAlignment.Left
+
+                    ImageView {
+                        id: hotSeatImage
+                        imageSource: "asset:///images/man_vs_man.png"
+                        horizontalAlignment: HorizontalAlignment.Center
+                    }
+                    //Ivisible real button that changes image
+                    ToggleButton {
+                        id: hotSeatEnabledToggle
+                        opacity: 0.0
+                        checked: false
+                        horizontalAlignment: HorizontalAlignment.Center
+                        onCheckedChanged: {
+                            if (checked)
+                            	hotSeatImage.setImageSource("asset:///images/man_vs_man.png");
+                            else
+                            	hotSeatImage.setImageSource("asset:///images/man_vs_ai.png");
+                        }
+                    }
+                }
+                
+                ImageButton {
+                    defaultImageSource: "asset:///images/info.png"
+                    verticalAlignment: VerticalAlignment.Bottom
+                    horizontalAlignment: HorizontalAlignment.Right
+                    preferredHeight: 70
+                    preferredWidth: 70
                     onClicked: {
                         var page = aboutPageDefinition.createObject();
                         navigationPane.push(page);
