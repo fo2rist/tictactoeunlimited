@@ -46,7 +46,7 @@ GameLogic::GameLogic(QObject *parent)
 : QObject(parent) {
 	gameMode_ = GameModeSinglePlayer;
 
-	currentTurn_ = TurnX; //First player starts by default
+	setCurrentTurn(TurnX); //First player starts by default
 
 	gameField_ = 0;
 
@@ -126,6 +126,10 @@ int GameLogic::numberOfDefeats() const {
 	return numberOfDefeats_;
 }
 
+int GameLogic::currentPlayer() const {
+	return currentTurn_;
+}
+
 void GameLogic::onButtonClicked(bool checked) {
 	if (checked == false) { //Ignore game reset
 		return;
@@ -176,10 +180,10 @@ void GameLogic::resetGame() {
 	//Switch first player every second time
 	switch (gameNumber_ % 2) {
 	case 0:
-		currentTurn_ = TurnX;
+		setCurrentTurn(TurnX);
 		break;
 	case 1:
-		currentTurn_ = TurnO;
+		setCurrentTurn(TurnO);
 		//Make AI's turn automatically
 		if (gameMode_ == GameModeSinglePlayer) {
 			QPoint computersTurnPosition = bestTurnFor(currentTurn_);
@@ -222,18 +226,18 @@ void GameLogic::makeTurn(QPoint position) {
 		case GameModeSinglePlayer:
 		case GameModeTwoPlayers:
 			if (currentTurn_ == TurnX) {
-				currentTurn_ = TurnO;
+				setCurrentTurn(TurnO);
 			} else {
-				currentTurn_ = TurnX;
+				setCurrentTurn(TurnX);
 			}
 			break;
 		case GameModeThreePlayers:
 			if (currentTurn_ == TurnX) {
-				currentTurn_ = TurnO;
+				setCurrentTurn(TurnO);
 			} else if (currentTurn_ == TurnO) {
-				currentTurn_ = TurnV;
+				setCurrentTurn(TurnV);
 			} else {
-				currentTurn_ = TurnX;
+				setCurrentTurn(TurnX);
 			}
 			break;
 	}
@@ -440,7 +444,7 @@ void GameLogic::cleanGameField() {
 	}
 }
 
-void GameLogic::showGameOverDialog(const QString& background){
+void GameLogic::showGameOverDialog(const QString& background) {
 	ImageButton *okButton = ImageButton::create()
 							.horizontal(HorizontalAlignment::Center)
 							.vertical(VerticalAlignment::Bottom)
@@ -465,4 +469,9 @@ void GameLogic::showGameOverDialog(const QString& background){
 	QObject::connect(okButton, SIGNAL(clicked()),
 					this, SLOT(resetGame()));
 	winDialog->open();
+}
+
+void GameLogic::setCurrentTurn(TurnType turn) {
+	currentTurn_ = turn;
+	emit currentPlayerChanged(currentPlayer());
 }

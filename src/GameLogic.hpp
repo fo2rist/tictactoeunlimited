@@ -47,6 +47,7 @@ class GameLogic: public QObject {
 	Q_OBJECT
 	Q_PROPERTY( int numberOfWins READ numberOfWins NOTIFY numberOfWinsChanged);
 	Q_PROPERTY( int numberOfDefeats READ numberOfDefeats NOTIFY numberOfDefeatsChanged);
+	Q_PROPERTY( int currentPlayer READ currentPlayer NOTIFY currentPlayerChanged);
 
 public:
 	GameLogic(QObject* parent = 0);
@@ -63,6 +64,8 @@ public:
 
 	int numberOfWins() const;
 	int numberOfDefeats() const;
+	//Current player number starting 1.
+	int currentPlayer() const;
 
 public slots:
 	void onButtonClicked(bool checked);
@@ -95,9 +98,13 @@ private:
 
 	void showGameOverDialog(const QString& background);
 
+	///Set current turn type and notify listener.
+	void setCurrentTurn(TurnType turn);
+
 signals:
 	void numberOfWinsChanged(int);
 	void numberOfDefeatsChanged(int);
+	void currentPlayerChanged(int);
 
 private:
 	///Initialized by @link initializeGame()

@@ -31,15 +31,15 @@ Page {
     actions: [
         ActionItem {
             id: actionWins
-            title: game.numberOfWins
-            imageSource: "asset:///images/ic_x.png"
+            title:game.numberOfWins
+            imageSource: (game.currentPlayer == 1) ? "asset:///images/ic_x_active.png" : "asset:///images/ic_x_inactive.png"
             enabled: false
             ActionBar.placement: ActionBarPlacement.OnBar
         },
         ActionItem {
             id: actionDefeats
             title: game.numberOfDefeats
-            imageSource: "asset:///images/ic_o.png"
+            imageSource: (game.currentPlayer == 2) ? "asset:///images/ic_o_active.png" : "asset:///images/ic_o_inactive.png"
             enabled: false
             ActionBar.placement: ActionBarPlacement.OnBar
         }
