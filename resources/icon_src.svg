@@ -155,7 +155,7 @@
        id="image2898"
        height="1280"
        width="768"
-       xlink:href="file:///D:/develop/ndk-10.0.9-workspace/TicTacToeUnlimited/assets/images/bg.png" />
+       xlink:href="bg.png" />
     <path
        style="opacity:0.1828794;fill:url(#radialGradient3620);fill-opacity:1;stroke:none;filter:url(#filter3918)"
        d="M 57.472219,9.5472807 C 78.854362,8.5011661 82.508517,67.298539 74.26104,74.972639 62.06861,86.317433 10.939115,86.42582 8.9188101,79.354753 6.8985041,72.283685 0.19007453,18.020324 5.4933754,13.727176 10.796676,9.4340281 53.936685,9.0422044 57.472219,9.5472807 z"
