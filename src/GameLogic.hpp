@@ -98,9 +98,6 @@ private:
 
 	void showGameOverDialog(const QString& background);
 
-	///Set current turn type and notify listener.
-	void setCurrentTurn(TurnType turn);
-
 signals:
 	void numberOfWinsChanged(int);
 	void numberOfDefeatsChanged(int);

@@ -67,7 +67,7 @@ void GameLogic::initializeGame(Container *gameFieldContainer, int width, int hei
 	cleanGameField();
 
 	//Clear game state
-	setCurrentTurn(TurnX); //First player starts by default
+	currentTurn_ = TurnX; //First player starts by default
 	gameNumber_ = 0;
 	numberOfWins_ = 0;
 	numberOfDefeats_ = 0;
@@ -111,6 +111,11 @@ void GameLogic::initializeGame(Container *gameFieldContainer, int width, int hei
 		}
 		gameFieldContainer->add(row);
 	}
+
+	//Notify UI to redraw everything
+	emit currentPlayerChanged(currentPlayer());
+	emit numberOfWinsChanged(numberOfWins_);
+	emit numberOfDefeatsChanged(numberOfDefeats_);
 }
 
 void GameLogic::setParameters(QString c_usersWin, QString c_aisWin, QString c_cellsLeft, QString c_freeLines) {
@@ -156,7 +161,7 @@ void GameLogic::onButtonClicked(bool checked) {
 		return;
 	}
 
-	//If we play vs CPU make this tuen
+	//If we play vs CPU make this turn
 	if (gameMode_ == GameModeSinglePlayer) {
 		makeTurn(computersTurnPosition);
 
@@ -166,6 +171,7 @@ void GameLogic::onButtonClicked(bool checked) {
 		}
 	} else {
 		//Wait for next player turn
+		emit currentPlayerChanged(currentPlayer());
 	}
 }
 
@@ -183,10 +189,10 @@ void GameLogic::resetGame() {
 	//Switch first player every second time
 	switch (gameNumber_ % 2) {
 	case 0:
-		setCurrentTurn(TurnX);
+		currentTurn_ = TurnX;
 		break;
 	case 1:
-		setCurrentTurn(TurnO);
+		currentTurn_ = TurnO;
 		//Make AI's turn automatically
 		if (gameMode_ == GameModeSinglePlayer) {
 			QPoint computersTurnPosition = bestTurnFor(currentTurn_);
@@ -194,6 +200,7 @@ void GameLogic::resetGame() {
 		}
 		break;
 	}
+	emit currentPlayerChanged(currentPlayer());
 }
 
 void GameLogic::makeTurn(QPoint position) {
@@ -229,18 +236,18 @@ void GameLogic::makeTurn(QPoint position) {
 		case GameModeSinglePlayer:
 		case GameModeTwoPlayers:
 			if (currentTurn_ == TurnX) {
-				setCurrentTurn(TurnO);
+				currentTurn_ = TurnO;
 			} else {
-				setCurrentTurn(TurnX);
+				currentTurn_ = TurnX;
 			}
 			break;
 		case GameModeThreePlayers:
 			if (currentTurn_ == TurnX) {
-				setCurrentTurn(TurnO);
+				currentTurn_ = TurnO;
 			} else if (currentTurn_ == TurnO) {
-				setCurrentTurn(TurnV);
+				currentTurn_ = TurnV;
 			} else {
-				setCurrentTurn(TurnX);
+				currentTurn_ = TurnX;
 			}
 			break;
 	}
@@ -472,9 +479,4 @@ void GameLogic::showGameOverDialog(const QString& background) {
 	QObject::connect(okButton, SIGNAL(clicked()),
 					this, SLOT(resetGame()));
 	winDialog->open();
-}
-
-void GameLogic::setCurrentTurn(TurnType turn) {
-	currentTurn_ = turn;
-	emit currentPlayerChanged(currentPlayer());
 }
