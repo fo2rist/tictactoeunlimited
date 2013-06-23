@@ -44,16 +44,13 @@ static const QPoint directionSE = QPoint(1, 1);
 
 GameLogic::GameLogic(QObject *parent)
 : QObject(parent) {
-	gameMode_ = GameModeSinglePlayer;
-
-	setCurrentTurn(TurnX); //First player starts by default
-
 	gameField_ = 0;
 
+	gameMode_ = GameModeSinglePlayer;
+	currentTurn_ = TurnX;
 	gameNumber_ = 0;
 	numberOfWins_ = 0;
 	numberOfDefeats_ = 0;
-
 
 	C_userWin_ = 10;
 	C_enemyWin_ = 9;
@@ -69,11 +66,17 @@ void GameLogic::initializeGame(Container *gameFieldContainer, int width, int hei
 	//Clean old game
 	cleanGameField();
 
+	//Clear game state
+	setCurrentTurn(TurnX); //First player starts by default
+	gameNumber_ = 0;
+	numberOfWins_ = 0;
+	numberOfDefeats_ = 0;
+
 	//Set new game parameters
+	gameMode_ = (GameMode)mode;
 	currentGameFieldContainer_ = gameFieldContainer;
 	gameWidth_ = width;
 	gameHeight_ = height;
-	gameMode_ = (GameMode)mode;
 	int cellSize = DEFAULT_SCREEN_WIDTH / width;
 
 	//Init game field

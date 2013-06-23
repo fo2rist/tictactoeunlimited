@@ -10,7 +10,7 @@ Page {
             gameWidth,
             gameHeight,
             multiplayer ? 1 : 0);
-    } 
+    }
 
     Container {
         layout: DockLayout {
@@ -31,7 +31,7 @@ Page {
     actions: [
         ActionItem {
             id: actionWins
-            title:game.numberOfWins
+            title: game.numberOfWins
             imageSource: (game.currentPlayer == 1) ? "asset:///images/ic_x_active.png" : "asset:///images/ic_x_inactive.png"
             enabled: false
             ActionBar.placement: ActionBarPlacement.OnBar
