@@ -44,11 +44,16 @@ static const QPoint directionSE = QPoint(1, 1);
 
 GameLogic::GameLogic(QObject *parent)
 : QObject(parent) {
+	gameMode_ = GameModeSinglePlayer;
+
+	currentTurn_ = TurnX; //First player starts by default
+
 	gameField_ = 0;
 
 	gameNumber_ = 0;
 	numberOfWins_ = 0;
 	numberOfDefeats_ = 0;
+
 
 	C_userWin_ = 10;
 	C_enemyWin_ = 9;
@@ -60,7 +65,7 @@ GameLogic::~GameLogic() {
 	cleanGameField();
 }
 
-void GameLogic::initializeGame(Container *gameFieldContainer, int width, int height) {
+void GameLogic::initializeGame(Container *gameFieldContainer, int width, int height, int mode) {
 	//Clean old game
 	cleanGameField();
 
@@ -68,6 +73,7 @@ void GameLogic::initializeGame(Container *gameFieldContainer, int width, int hei
 	currentGameFieldContainer_ = gameFieldContainer;
 	gameWidth_ = width;
 	gameHeight_ = height;
+	gameMode_ = (GameMode)mode;
 	int cellSize = DEFAULT_SCREEN_WIDTH / width;
 
 	//Init game field
@@ -86,12 +92,12 @@ void GameLogic::initializeGame(Container *gameFieldContainer, int width, int hei
 			ImageToggleButton* imageButton = ImageToggleButton::create()
 					.parent(row)
 					.objectName(BUTTONS_NAME)
-					.imageDefault(QUrl("asset:///images/cell_empty.png"))          // \ _Default state
-					.imagePressedUnchecked(QUrl("asset:///images/cell_empty.png")) // /
-					.imageChecked(QUrl("asset:///images/cell_x.png"))              // \.
-					.imageDisabledChecked(QUrl("asset:///images/cell_x.png"))      //  >-Checked by user
-					.imagePressedChecked(QUrl("asset:///images/cell_x.png"))       // /
-					.imageDisabledUnchecked(QUrl("asset:///images/cell_o.png"))    //   -Checked by AI
+					.imageDefault(QUrl("asset:///images/cell_empty.png"))          // \.
+					.imagePressedUnchecked(QUrl("asset:///images/cell_empty.png")) //  \_ Default state
+					.imagePressedChecked(QUrl("asset:///images/cell_empty.png"))   //  /
+					.imageChecked(QUrl("asset:///images/cell_empty.png"))          // /
+					.imageDisabledChecked(QUrl("asset:///images/cell_x.png"))      // - Checked by First Player
+					.imageDisabledUnchecked(QUrl("asset:///images/cell_o.png"))    //  -Checked by Second Player
 					.preferredSize(cellSize, cellSize)
 					.margins(0, 0, 0, 0);
 
@@ -121,14 +127,14 @@ int GameLogic::numberOfDefeats() const {
 }
 
 void GameLogic::onButtonClicked(bool checked) {
-	if (checked == false) { //Ignore game rest
+	if (checked == false) { //Ignore game reset
 		return;
 	}
 
 	ImageToggleButton* clickedButton = qobject_cast<ImageToggleButton*>(QObject::sender());
 	QPoint position = clickedButton->property(POSITION_PROPERTY).toPoint();
 
-	makeTurn(position, TurnX);
+	makeTurn(position);
 
 	//Check for palyer's win
 	if (checkForWin(position)) {
@@ -136,17 +142,23 @@ void GameLogic::onButtonClicked(bool checked) {
 	}
 
 	//Calculate computer's turn
-	QPoint computersTurnPosition = bestTurnFor(TurnO);
-	//Go ahead
+	QPoint computersTurnPosition = bestTurnFor(currentTurn_);
+
 	if (computersTurnPosition == QPoint(-1, -1)) {
 		showGameOverDialog("asset:///images/dialog_no_turns.png");
 		return;
 	}
-	makeTurn(computersTurnPosition, TurnO);
 
-	//Check for computer's win
-	if(checkForWin(computersTurnPosition)) {
-		return;
+	//If we play vs CPU make this tuen
+	if (gameMode_ == GameModeSinglePlayer) {
+		makeTurn(computersTurnPosition);
+
+		//Check for computer's win
+		if(checkForWin(computersTurnPosition)) {
+			return;
+		}
+	} else {
+		//Wait for next player turn
 	}
 }
 
@@ -161,14 +173,23 @@ void GameLogic::resetGame() {
 
 	//increase game number to switch first player
 	gameNumber_++;
-	//Make AI's turn every second time
-	if (gameNumber_ % 2 == 1) {
-		QPoint computersTurnPosition = bestTurnFor(TurnO);
-		makeTurn(computersTurnPosition, TurnO);
+	//Switch first player every second time
+	switch (gameNumber_ % 2) {
+	case 0:
+		currentTurn_ = TurnX;
+		break;
+	case 1:
+		currentTurn_ = TurnO;
+		//Make AI's turn automatically
+		if (gameMode_ == GameModeSinglePlayer) {
+			QPoint computersTurnPosition = bestTurnFor(currentTurn_);
+			makeTurn(computersTurnPosition);
+		}
+		break;
 	}
 }
 
-void GameLogic::makeTurn(QPoint position, TurnType turn) {
+void GameLogic::makeTurn(QPoint position) {
 	//Find button by position
 	ImageToggleButton* buttonAtPosition;
 	QList<ImageToggleButton*> buttons = currentGameFieldContainer_->findChildren<ImageToggleButton*>(BUTTONS_NAME);
@@ -179,7 +200,7 @@ void GameLogic::makeTurn(QPoint position, TurnType turn) {
 		}
 	}
 
-	switch (turn) {
+	switch (currentTurn_) {
 		case TurnX:
 			gameField_[position.x()][position.y()] = CellStateX;
 			buttonAtPosition->setEnabled(false);//Disable next turn in same place
@@ -189,6 +210,31 @@ void GameLogic::makeTurn(QPoint position, TurnType turn) {
 
 			buttonAtPosition->setChecked(false);
 			buttonAtPosition->setEnabled(false);//Disable next turn in same place
+			break;
+		case TurnV:
+			//not implemented yet
+			showGameOverDialog("no background");
+			break;
+	}
+
+	//Figure out who is the next
+	switch (gameMode_) {
+		case GameModeSinglePlayer:
+		case GameModeTwoPlayers:
+			if (currentTurn_ == TurnX) {
+				currentTurn_ = TurnO;
+			} else {
+				currentTurn_ = TurnX;
+			}
+			break;
+		case GameModeThreePlayers:
+			if (currentTurn_ == TurnX) {
+				currentTurn_ = TurnO;
+			} else if (currentTurn_ == TurnO) {
+				currentTurn_ = TurnV;
+			} else {
+				currentTurn_ = TurnX;
+			}
 			break;
 	}
 }
@@ -229,6 +275,10 @@ QPoint GameLogic::bestTurnFor(TurnType turnType) const {
 			desiredState = CellStateO;
 			enemysState = CellStateX;
 			break;
+		case TurnV:
+			//not implemented
+			desiredState = CellStateV;
+			return QPoint(-1, -1); //impossible point
 	}
 
 	//Go through matrix an look for best point

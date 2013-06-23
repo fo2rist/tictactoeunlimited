@@ -60,7 +60,7 @@ NavigationPane {
                         var page = gamePageDefinition.createObject();
                         page.gameWidth = 6;
                         page.gameHeight = 6;
-                        page.initializeGame();
+                        page.initializeGame(hotSeatEnabledToggle.checked);
                         navigationPane.push(page);
                     }
                 }
@@ -75,7 +75,7 @@ NavigationPane {
                         var page = gamePageDefinition.createObject();
                         page.gameWidth = 8;
                         page.gameHeight = 8;
-                        page.initializeGame();
+                        page.initializeGame(hotSeatEnabledToggle.checked);
                         navigationPane.push(page);
                     }
                 }
@@ -90,7 +90,7 @@ NavigationPane {
                         var page = gamePageDefinition.createObject();
                         page.gameWidth = 9;
                         page.gameHeight = 9;
-                        page.initializeGame();
+                        page.initializeGame(hotSeatEnabledToggle.checked);
                         navigationPane.push(page);
                     }
                 }
@@ -135,12 +135,11 @@ NavigationPane {
                 
                 Container {
                     layout: DockLayout {}
-                    
                     horizontalAlignment: HorizontalAlignment.Left
 
                     ImageView {
                         id: hotSeatImage
-                        imageSource: "asset:///images/man_vs_man.png"
+                        imageSource: "asset:///images/man_vs_ai.png"
                         horizontalAlignment: HorizontalAlignment.Center
                     }
                     //Ivisible real button that changes image

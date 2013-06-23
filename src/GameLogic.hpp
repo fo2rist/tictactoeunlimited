@@ -21,13 +21,22 @@ class QPoint;
 enum CellState {
 	CellStateEmpty = 0,
 	CellStateX = 1,
-	CellStateO = 2
+	CellStateO = 2,
+	CellStateV = 3 //third player
 };
 
 ///Current turn.
 enum TurnType {
 	TurnX = CellStateX, //just make turn and state binary compatible
-	TurnO = CellStateO
+	TurnO = CellStateO,
+	TurnV = CellStateV
+};
+
+///Game mode vs CPU / vs Man.
+enum GameMode {
+	GameModeSinglePlayer = 0,
+	GameModeTwoPlayers = 1,
+	GameModeThreePlayers = 2
 };
 
 /**
@@ -45,7 +54,10 @@ public:
 
 	///Init game with width/height number of cells.
 	///Will place buttons in container and start game.
-	Q_INVOKABLE void initializeGame(bb::cascades::Container *gameFieldContainer, int width, int height);
+	Q_INVOKABLE void initializeGame(bb::cascades::Container *gameFieldContainer,
+			int width,
+			int height,
+			int mode);
 	///Debug opiton to tune AI's parameters.
 	Q_INVOKABLE void setParameters(QString c_usersWin, QString c_aisWin, QString c_cellsLeft, QString c_freeLines);
 
@@ -57,9 +69,9 @@ public slots:
 	void resetGame();
 
 private:
-	///Set check-mark in given position.
-	///Setup UI cell if necessary.
-	void makeTurn(QPoint position, TurnType turn);
+	///Set check-mark of current player in given position.
+	///Setup UI cell if necessary. At the end gives turn to next player.
+	void makeTurn(QPoint position);
 	///Check whether current step is the last.
 	///@return true if it's a last step.
 	bool checkForWin(QPoint position);
@@ -92,6 +104,9 @@ private:
 	bb::cascades::Container* currentGameFieldContainer_;
 	int gameWidth_;
 	int gameHeight_;
+	GameMode gameMode_;
+
+	TurnType currentTurn_;
 
 	/// Game field with turns info.
 	/// Index like a[x][y]

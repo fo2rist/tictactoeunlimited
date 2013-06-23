@@ -4,9 +4,12 @@ Page {
     property int gameWidth;
     property int gameHeight;
 
-    function initializeGame() {
-        game.initializeGame(gameField, gameWidth, gameHeight)
+    function initializeGame(multiplayer) {
         
+        game.initializeGame(gameField,
+            gameWidth,
+            gameHeight,
+            multiplayer ? 1 : 0);
     } 
 
     Container {
