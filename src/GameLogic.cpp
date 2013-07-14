@@ -262,11 +262,11 @@ bool GameLogic::checkForWin(QPoint position) {
 		CellState cellState = gameField_[position.x()][position.y()];
 		QString background;
 		if (cellState == CellStateX) {
-			background= "asset:///images/dialog_win.png";
+			background= "asset:///images/dialog_winner_x.png";
 			numberOfWins_++;
 			emit numberOfWinsChanged(numberOfWins_);
 		} else {
-			background = "asset:///images/dialog_lose.png";
+			background = "asset:///images/dialog_winner_o.png";
 			numberOfDefeats_++;
 			emit numberOfDefeatsChanged(numberOfDefeats_);
 		}
