@@ -54,11 +54,7 @@ public:
 	virtual ~GameLogic();
 
 	///Init game with width/height number of cells.
-	///Will place buttons in container and start game.
-	Q_INVOKABLE void initializeGame(bb::cascades::Container *gameFieldContainer,
-			int width,
-			int height,
-			int mode);
+	void initializeGame(int width, int height, GameMode mode);
 	///Debug opiton to tune AI's parameters.
 	Q_INVOKABLE void setParameters(QString c_usersWin, QString c_aisWin, QString c_cellsLeft, QString c_freeLines);
 
@@ -67,8 +63,9 @@ public:
 	//Current player number starting 1.
 	int currentPlayer() const;
 
+	void onButtonClicked(QPoint position);
+
 public slots:
-	void onButtonClicked(bool checked);
 	void resetGame();
 
 private:
@@ -96,16 +93,19 @@ private:
 	void initGameField();
 	void cleanGameField();
 
-	void showGameOverDialog(const QString& background);
-
 signals:
 	void numberOfWinsChanged(int);
 	void numberOfDefeatsChanged(int);
 	void currentPlayerChanged(int);
+	///Notifies about turn made.
+	///@param state should be interpreted as CellState
+	void cellFilled(int x, int y, int state);
+	///Notifies about whole files was reset.
+	void fieldErased();
+	///Notifies about game finished
+	void showDialog(QString background);
 
 private:
-	///Initialized by @link initializeGame()
-	bb::cascades::Container* currentGameFieldContainer_;
 	int gameWidth_;
 	int gameHeight_;
 	GameMode gameMode_;

@@ -5,8 +5,8 @@ Page {
     property int gameHeight;
 
     function initializeGame(multiplayer) {
-        
-        game.initializeGame(gameField,
+
+        gameController.initializeGame(gameField,
             gameWidth,
             gameHeight,
             multiplayer ? 1 : 0);

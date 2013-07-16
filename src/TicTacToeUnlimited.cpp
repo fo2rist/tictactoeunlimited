@@ -6,6 +6,7 @@
 #include <bb/cascades/AbstractPane>
 
 #include "GameLogic.hpp"
+#include "GameViewController.hpp"
 
 using namespace bb::cascades;
 
@@ -16,7 +17,9 @@ TicTacToeUnlimited::TicTacToeUnlimited(bb::cascades::Application *app)
     // set parent to created document to ensure it exists for the whole application lifetime
     QmlDocument *qml = QmlDocument::create("asset:///main.qml").parent(this);
 
-    qml->setContextProperty("game", new GameLogic(this));
+    GameLogic *game = new GameLogic(this);
+    qml->setContextProperty("game", game);
+    qml->setContextProperty("gameController", new GameViewController(game, this));
 
     // create root object for the UI
     AbstractPane *root = qml->createRootObject<AbstractPane>();

@@ -19,15 +19,10 @@
 #include <bb/cascades/StackLayout>
 #include <bb/cascades/StackLayoutProperties>
 
-#include <QtDeclarative/qdeclarativecomponent.h>
+//#include <QtDeclarative/qdeclarativecomponent.h>
 #include <QPoint>
 
 using namespace bb::cascades;
-
-static const char *POSITION_PROPERTY = "position_property";
-static const char *BUTTONS_NAME = "cell_button";
-
-static const int DEFAULT_SCREEN_WIDTH = 660;
 
 //Length of the line to win
 static const int WIN_LINE_LENGTH = 4;
@@ -62,7 +57,7 @@ GameLogic::~GameLogic() {
 	cleanGameField();
 }
 
-void GameLogic::initializeGame(Container *gameFieldContainer, int width, int height, int mode) {
+void GameLogic::initializeGame(int width, int height, GameMode mode) {
 	//Clean old game
 	cleanGameField();
 
@@ -73,44 +68,13 @@ void GameLogic::initializeGame(Container *gameFieldContainer, int width, int hei
 	numberOfDefeats_ = 0;
 
 	//Set new game parameters
-	gameMode_ = (GameMode)mode;
-	currentGameFieldContainer_ = gameFieldContainer;
+	gameMode_ = mode;
 	gameWidth_ = width;
 	gameHeight_ = height;
-	int cellSize = DEFAULT_SCREEN_WIDTH / width;
+
 
 	//Init game field
 	initGameField();
-
-	//Init UI
-	for (int y=0; y<gameHeight_; ++y) {
-		Container *row = Container::create()
-				.parent(gameFieldContainer)
-				.horizontal(HorizontalAlignment::Center)
-				.layout(StackLayout::create()
-							.parent(gameFieldContainer)
-							.orientation(LayoutOrientation::LeftToRight));
-
-		for (int x=0; x<gameWidth_; ++x) {
-			ImageToggleButton* imageButton = ImageToggleButton::create()
-					.parent(row)
-					.objectName(BUTTONS_NAME)
-					.imageDefault(QUrl("asset:///images/cell_empty.png"))          // \.
-					.imagePressedUnchecked(QUrl("asset:///images/cell_empty.png")) //  \_ Default state
-					.imagePressedChecked(QUrl("asset:///images/cell_empty.png"))   //  /
-					.imageChecked(QUrl("asset:///images/cell_empty.png"))          // /
-					.imageDisabledChecked(QUrl("asset:///images/cell_x.png"))      // - Checked by First Player
-					.imageDisabledUnchecked(QUrl("asset:///images/cell_o.png"))    //  -Checked by Second Player
-					.preferredSize(cellSize, cellSize)
-					.margins(0, 0, 0, 0);
-
-					QObject::connect(imageButton, SIGNAL(checkedChanged(bool)),
-							this, SLOT(onButtonClicked(bool)));
-			imageButton->setProperty(POSITION_PROPERTY, QPoint(x, y)); //Store button position in button itself
-			row->add(imageButton);
-		}
-		gameFieldContainer->add(row);
-	}
 
 	//Notify UI to redraw everything
 	emit currentPlayerChanged(currentPlayer());
@@ -138,14 +102,7 @@ int GameLogic::currentPlayer() const {
 	return currentTurn_;
 }
 
-void GameLogic::onButtonClicked(bool checked) {
-	if (checked == false) { //Ignore game reset
-		return;
-	}
-
-	ImageToggleButton* clickedButton = qobject_cast<ImageToggleButton*>(QObject::sender());
-	QPoint position = clickedButton->property(POSITION_PROPERTY).toPoint();
-
+void GameLogic::onButtonClicked(QPoint position) {
 	makeTurn(position);
 
 	//Check for palyer's win
@@ -157,7 +114,7 @@ void GameLogic::onButtonClicked(bool checked) {
 	QPoint computersTurnPosition = bestTurnFor(currentTurn_);
 
 	if (computersTurnPosition == QPoint(-1, -1)) {
-		showGameOverDialog("asset:///images/dialog_no_turns.png");
+		emit showDialog("asset:///images/dialog_no_turns.png");
 		return;
 	}
 
@@ -178,11 +135,8 @@ void GameLogic::onButtonClicked(bool checked) {
 void GameLogic::resetGame() {
 	cleanGameField();
 	initGameField();
-	QList<ImageToggleButton*> buttons = currentGameFieldContainer_->findChildren<ImageToggleButton*>(BUTTONS_NAME);
-	foreach(ImageToggleButton *button, buttons) {
-		button->setEnabled(true);
-		button->setChecked(false);
-	}
+
+	emit fieldErased();
 
 	//increase game number to switch first player
 	gameNumber_++;
@@ -204,30 +158,18 @@ void GameLogic::resetGame() {
 }
 
 void GameLogic::makeTurn(QPoint position) {
-	//Find button by position
-	ImageToggleButton* buttonAtPosition;
-	QList<ImageToggleButton*> buttons = currentGameFieldContainer_->findChildren<ImageToggleButton*>(BUTTONS_NAME);
-	foreach(ImageToggleButton *button, buttons) {
-		if (button->property(POSITION_PROPERTY).toPoint() == position) {
-			buttonAtPosition = button;
-			break;
-		}
-	}
-
 	switch (currentTurn_) {
 		case TurnX:
 			gameField_[position.x()][position.y()] = CellStateX;
-			buttonAtPosition->setEnabled(false);//Disable next turn in same place
+			emit cellFilled(position.x(), position.y(), CellStateX);
 			break;
 		case TurnO:
 			gameField_[position.x()][position.y()] = CellStateO;
-
-			buttonAtPosition->setChecked(false);
-			buttonAtPosition->setEnabled(false);//Disable next turn in same place
+			emit cellFilled(position.x(), position.y(), CellStateO);
 			break;
 		case TurnV:
-			//not implemented yet
-			showGameOverDialog("no background");
+			gameField_[position.x()][position.y()] = CellStateV;
+			emit cellFilled(position.x(), position.y(), CellStateV);
 			break;
 	}
 
@@ -271,7 +213,7 @@ bool GameLogic::checkForWin(QPoint position) {
 			emit numberOfDefeatsChanged(numberOfDefeats_);
 		}
 
-		showGameOverDialog(background);
+		emit showDialog(background);
 		return true;
 	}
 	return false;
@@ -452,31 +394,4 @@ void GameLogic::cleanGameField() {
 		delete[] gameField_;
 		gameField_ = 0;
 	}
-}
-
-void GameLogic::showGameOverDialog(const QString& background) {
-	ImageButton *okButton = ImageButton::create()
-							.horizontal(HorizontalAlignment::Center)
-							.vertical(VerticalAlignment::Bottom)
-							.defaultImage(QUrl("asset:///images/ok.png"))
-							.pressedImage(QUrl("asset:///images/ok.png"));
-
-	Dialog* winDialog = Dialog::create()
-			.content(Container::create()
-					.preferredSize(540, 360)
-					.background(ImagePaint(QUrl(background), RepeatPattern::Fill))
-					.horizontal(HorizontalAlignment::Center)
-					.vertical(VerticalAlignment::Center)
-					.add(Container::create()
-							.preferredSize(500, 320)
-							.layout(DockLayout::create())
-						.vertical(VerticalAlignment::Center)
-						.horizontal(HorizontalAlignment::Center)
-						.add(okButton))
-			);
-	QObject::connect(okButton, SIGNAL(clicked()),
-					winDialog, SLOT(close()));
-	QObject::connect(okButton, SIGNAL(clicked()),
-					this, SLOT(resetGame()));
-	winDialog->open();
 }
